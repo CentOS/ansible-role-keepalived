@@ -1,0 +1,63 @@
+---
+- hosts: ci-gateway-nodes
+  become: true
+  roles:
+      - "/home/bstinson/src/ansible-roles/centos/ansible-role-iptables/"
+  vars:
+      iptables_gw: true
+      iptables_nat_prerouting_allow: []
+      iptables_nat_postrouting_allow:
+          - source: 192.168.33.0/24
+            action: MASQUERADE --out-interface eth0 
+      iptables_local_input_rules:
+          - protocol: vrrp
+          - destination: 225.0.0.50
+            protocol: ''
+            source: ''
+          - dport: '80'
+      iptables_forward_allow:
+          - source: 192.168.33.0/24
+            destination: 0.0.0.0/0
+
+- hosts: ci-gateway-nodes
+  become: true
+  roles:
+      - ../ci-gateway
+  vars:
+     ci_gateway_vrrp_sync_groups:
+         VG1:
+             instances:
+               - EXTERNAL
+         VG2:
+             instances:
+               - INTERNAL
+     ci_gateway_vrrp_instances:
+        INTERNAL:
+          interface: eth1
+          state: "{{ (groups['ci-gateway-nodes'].index(inventory_hostname) == 0) | ternary('MASTER','BACKUP') }}"
+          priority: 101
+          virtual_router_id: 51
+
+          authentication:
+            auth_type: PASS
+            auth_pass: "MyP4ssW0rd"
+
+          virtual_ipaddresses:
+            - '192.168.33.254/24'
+
+        EXTERNAL:
+          interface: eth0
+          state: "{{ (groups['ci-gateway-nodes'].index(inventory_hostname) == 0) | ternary('BACKUP','MASTER') }}"
+          priority: 101
+          virtual_router_id: 151
+
+          authentication:
+            auth_type: PASS
+            auth_pass: "MyP4ssW0rd"
+
+          virtual_ipaddresses:
+            - '192.168.121.253/24'
+          track_scripts:
+            - chk_haproxy
+
+     ci_gateway_conntrack_interface: eth1

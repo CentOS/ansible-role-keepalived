@@ -1,0 +1,44 @@
+---
+# tasks file for ci_gateway
+
+- name: Bind to non local addresses
+  sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: 1
+    sysctl_set: yes
+    state: present
+
+- import_tasks: install.yml
+  tags:
+    - ci_gateway-keepalived_install
+    - install
+
+- name: template the keepalived conf file
+  template:
+    src: keepalived/keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  tags:
+    - ci_gateway-keepalived_config
+    - config
+  notify:
+    - restart keepalived
+
+- name: enable the keepalived service
+  service:
+    name: keepalived
+    enabled: yes
+
+- name: template the conntrackd conf file
+  template:
+    src: conntrackd/conntrackd.conf.j2
+    dest: /etc/conntrackd/conntrackd.conf
+  tags:
+    - ci_gateway-conntrackd_config
+    - config
+  notify:
+    - restart conntrackd
+
+- name: enable the conntrackd service
+  service:
+    name: conntrackd
+    enabled: yes

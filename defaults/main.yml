@@ -1,0 +1,8 @@
+---
+# defaults file for ci_gateway
+
+ci_gateway_admin_email: admin@example.com
+ci_gateway_mail_server: 127.0.0.1
+ci_gateway_smtp_connect_timeout: 60
+ci_gateway_conntrackd_ignore_addresses:
+    - '{{ ansible_default_ipv4.address }}'
