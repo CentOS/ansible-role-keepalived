@@ -32,10 +32,15 @@ Vagrant.configure(2) do |config|
         domain.cpu_mode = 'host-passthrough'
       end
       config.vm.hostname = boxopts[:name]
-      config.vm.network :private_network, ip: boxopts[:eth0]
+      config.vm.network :private_network, ip: boxopts[:eth0], libvirt__forward_mode: :none
       # Vagrant works serially and provision machines
       # serially. Each of them is unaware of the others.
       # Therefore, we should start provisioning only on last machine
+      
+      if boxopts[:name] == "client"
+        config.vm.provision :shell,
+            :path => "tests/client.sh"
+      end
       if boxopts[:name] == "keepalived2"
         config.vm.provision :ansible do |ansible|
           ansible.playbook = "tests/provision.yml"
