@@ -5,16 +5,18 @@
       - "/home/bstinson/src/ansible-roles/centos/ansible-role-iptables/"
   vars:
       iptables_gw: true
+      iptables_default_input_policy: DROP
+      iptables_default_forward_policy: DROP
+      iptables_default_reject_footer: false
       iptables_nat_prerouting_allow: []
       iptables_nat_postrouting_allow:
           - source: 192.168.33.0/24
-            action: MASQUERADE --out-interface eth0 
+            action: SNAT -o eth0 --to 192.168.121.253
       iptables_local_input_rules:
           - protocol: vrrp
           - destination: 225.0.0.50
             protocol: ''
             source: ''
-          - dport: '80'
       iptables_forward_allow:
           - source: 192.168.33.0/24
             destination: 0.0.0.0/0
@@ -47,7 +49,7 @@
 
         EXTERNAL:
           interface: eth0
-          state: "{{ (groups['ci-gateway-nodes'].index(inventory_hostname) == 0) | ternary('BACKUP','MASTER') }}"
+          state: "{{ (groups['ci-gateway-nodes'].index(inventory_hostname) == 0) | ternary('MASTER','BACKUP') }}"
           priority: 101
           virtual_router_id: 151
 
