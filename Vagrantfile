@@ -30,6 +30,7 @@ Vagrant.configure(2) do |config|
         config.vm.box = boxopts[:image]
       config.vm.provider :libvirt do |domain|
         domain.cpu_mode = 'host-passthrough'
+        domain.qemu_use_session = false
       end
       config.vm.hostname = boxopts[:name]
       config.vm.network :private_network, ip: boxopts[:eth0], libvirt__forward_mode: :none
