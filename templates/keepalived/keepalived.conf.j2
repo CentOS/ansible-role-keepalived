@@ -1,0 +1,44 @@
+global_defs {
+    notification_email {
+        {{ ci_gateway_admin_email }}
+    }
+
+    notification_email_from noreply@example.com
+    smtp_server {{ ci_gateway_mail_server }}
+}
+
+{% for key,value in ci_gateway_vrrp_sync_groups.items() %}
+vrrp_sync_group {{ key }} {
+    group {
+{% for instance in value.instances %}
+        {{ instance }}
+{% endfor %}
+    }
+
+}
+{% endfor %}
+
+{% for key,value in ci_gateway_vrrp_instances.items() %}
+vrrp_instance {{ key }} {
+    state {{ value.state }}
+    interface {{ value.interface }}
+    virtual_router_id {{ value.virtual_router_id }}
+    priority {{ (value.state == 'MASTER') | ternary(value.priority, value.priority - 2) }}
+
+    authentication {
+        auth_type {{ value.authentication.auth_type }}
+        auth_pass {{ value.authentication.auth_pass }}
+    }
+
+    virtual_ipaddress {
+        {% for vip in value.virtual_ipaddresses %}
+        {{ vip }}
+        {% endfor %}
+    }
+
+    notify_master "/usr/local/bin/primary-backup.sh primary"
+    notify_backup "/usr/local/bin/primary-backup.sh backup"
+    notify_fault "/usr/local/bin/primary-backup.sh fault"
+
+}
+{% endfor %}

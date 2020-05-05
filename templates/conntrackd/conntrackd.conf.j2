@@ -1,0 +1,51 @@
+Sync {
+	Mode FTFW {
+                DisableExternalCache Off
+                CommitTimeout 1800
+	}
+	Multicast {
+		IPv4_address 225.0.0.50
+		Group 3780
+		IPv4_interface {{ hostvars[inventory_hostname]["ansible_"+ci_gateway_conntrack_interface]["ipv4"]["address"] }}
+		Interface {{ ci_gateway_conntrack_interface }}
+		SndSocketBuffer 1249280
+		RcvSocketBuffer 1249280
+		Checksum on
+	}
+        Options {
+                TCPWindowTracking on
+        }
+}
+General {
+	Nice -20
+	HashSize 32768
+	HashLimit 131072
+	LogFile on
+	LockFile /var/lock/conntrack.lock
+	UNIX {
+		Path /var/run/conntrackd.ctl
+		Backlog 20
+	}
+	NetlinkBufferSize 2097152
+	NetlinkBufferSizeMaxGrowth 8388608
+	Filter From Userspace {
+		Protocol Accept {
+			TCP
+                        UDP
+			SCTP
+			DCCP
+                        ICMP
+		}
+		Address Ignore {
+			IPv4_address 127.0.0.1 # loopback
+                        IPv4_address {{ hostvars[inventory_hostname]["ansible_"+ci_gateway_conntrack_interface]["ipv4"]["address"] }}
+			IPv4_address 192.168.33.253 # dedicated link ip
+			IPv4_address 192.168.33.254 # dedicated link ip
+{% for item in ci_gateway_conntrackd_ignore_addresses %}
+{% if item %}
+                        IPv4_address {{ item }}
+{% endif %}
+{% endfor %}
+		}
+	}
+}

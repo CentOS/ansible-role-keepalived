@@ -1,0 +1,12 @@
+---
+# handlers file for ci_gateway
+#
+- name: restart keepalived
+  service:
+    name: keepalived
+    state: restarted
+
+- name: restart conntrackd
+  service:
+    name: conntrackd
+    state: restarted
