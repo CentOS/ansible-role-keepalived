@@ -27,3 +27,11 @@
     state: installed
   tags:
     - packages
+
+- name: copy the primary-backup script
+  copy:
+    src: primary-backup.sh
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: 0755

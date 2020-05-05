@@ -15,9 +15,6 @@ vrrp_sync_group {{ key }} {
 {% endfor %}
     }
 
-    notify_master "/usr/share/doc/conntrack-tools-1.4.4/doc/sync/primary-backup.sh primary"
-    notify_master "/usr/share/doc/conntrack-tools-1.4.4/doc/sync/primary-backup.sh backup"
-    notify_master "/usr/share/doc/conntrack-tools-1.4.4/doc/sync/primary-backup.sh fault"
 }
 {% endfor %}
 
@@ -38,6 +35,10 @@ vrrp_instance {{ key }} {
         {{ vip }}
         {% endfor %}
     }
+
+    notify_master "/usr/local/bin/primary-backup.sh primary"
+    notify_backup "/usr/local/bin/primary-backup.sh backup"
+    notify_fault "/usr/local/bin/primary-backup.sh fault"
 
 }
 {% endfor %}

@@ -1,6 +1,6 @@
 Sync {
 	Mode FTFW {
-                DisableExternalCache On
+                DisableExternalCache Off
                 CommitTimeout 1800
 	}
 	Multicast {
@@ -12,6 +12,9 @@ Sync {
 		RcvSocketBuffer 1249280
 		Checksum on
 	}
+        Options {
+                TCPWindowTracking on
+        }
 }
 General {
 	Nice -20
