@@ -1,12 +1,4 @@
 ---
-
-- name: We get haproxy from the PaaS SIG
-  package:
-    name: centos-release-openshift-origin
-    state: installed
-  tags:
-    - packages
-
 - name: Actually install haproxy
   package:
     name: haproxy18

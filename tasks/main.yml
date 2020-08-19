@@ -27,6 +27,7 @@
   template:
     src: keepalived/keepalived.conf.j2
     dest: /etc/keepalived/keepalived.conf
+    mode: 0644
   tags:
     - ci_gateway-keepalived_config
     - config
@@ -42,6 +43,7 @@
   template:
     src: conntrackd/conntrackd.conf.j2
     dest: /etc/conntrackd/conntrackd.conf
+    mode: 0644
   tags:
     - ci_gateway-conntrackd_config
     - config
